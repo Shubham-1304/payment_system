@@ -68,6 +68,7 @@ class _PayuPaymentViewState extends State<PayuPaymentView>
     var hashType = response[PayUHashConstantsKeys.hashType];
     var postSalt = response[PayUHashConstantsKeys.postSalt];
     // var hash = <Get Hash Backend with < hashString, merchantSalt , postSalt >
+    var hash = generateHash(hashName + postSalt);
     // Call hashGenerated with HashResponse< hashName , Hash>
     Map hashResponse = {};
     _checkoutPro.hashGenerated(hash: hashResponse);
