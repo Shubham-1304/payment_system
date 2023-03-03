@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:payu_checkoutpro_flutter/PayUConstantKeys.dart';
 import 'package:crypto/crypto.dart';
 
 class HashGenerator {
@@ -17,6 +17,12 @@ class HashGenerator {
   final String _CHECK_OFFER_STATUS_HASH = "check_offer_status_hash";
   final String _CHECK_ISDOMESTIC_HASH = "check_isDomestic_hash";
   final String _VERIFY_PAYMENT_HASH = "verify_payment_hash";
+
+  // void staticHash(){
+  //   Map<String, Object> additionalParams = Map<String,Object>();
+  //   additionalParams[PayUCheckoutProConstants.CP_VAS_FOR_MOBILE_SDK] = <String>;
+  //   additionalParams[PayUCheckoutProConstants.CP_PAYMENT_RELATED_DETAILS_FOR_MOBILE_SDK] = <String>;
+  // }
 
   String getHashes(
       String txnid,
@@ -56,8 +62,8 @@ class HashGenerator {
         "||||||" +
         _salt;
 
-    String paymentHash = getSHA(ph);
-    print("Payment Hash " + paymentHash);
+    String paymentHash = getSHA(ph); // 512
+    //print("Payment Hash " + paymentHash);
     response[_PAYMENT_HASH] = paymentHash;
     response[_VAS_FOR_MOBILE_SDK_HASH] =
         generateHashString("vas_for_mobile_sdk", "default");
@@ -81,14 +87,14 @@ class HashGenerator {
           generateHashString(
               "payment_related_details_for_mobile_sdk", "default");
     }
-    print("Vas_for _mobile_sdk  " +
-        generateHashString("vas_for_mobile_sdk", "default"));
-    print("payment_related_details_sdk_hash  " +
-        generateHashString(
-            "payment_related_details_for_mobile_sdk", user_credentials));
+    // print("Vas_for _mobile_sdk  " +
+    //     generateHashString("vas_for_mobile_sdk", "default"));
+    // print("payment_related_details_sdk_hash  " +
+    //     generateHashString(
+    //         "payment_related_details_for_mobile_sdk", user_credentials));
 
-    print("delete_user_card Hash" +
-        generateHashString("delete_user_card", user_credentials));
+    // print("delete_user_card Hash" +
+    //     generateHashString("delete_user_card", user_credentials));
 
     response = jsonEncode(response);
 

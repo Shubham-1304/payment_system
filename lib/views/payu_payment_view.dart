@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:payment_system/views/api.dart';
+import 'package:payment_system/views/payu_payment_view/hash_service.dart';
 import 'package:payu_checkoutpro_flutter/payu_checkoutpro_flutter.dart';
 import 'package:payu_checkoutpro_flutter/PayUConstantKeys.dart';
 import 'dart:convert';
@@ -15,7 +16,7 @@ class _PayuPaymentViewState extends State<PayuPaymentView>
     implements PayUCheckoutProProtocol {
   late PayUCheckoutProFlutter _checkoutPro;
   //final temp = ConnectionMaking().requestApiIntegration();
-  final hostedIntegreation = ConnectionMaking().hostedRequestApiIntegration();
+  //final hostedIntegreation = ConnectionMaking().hostedRequestApiIntegration();
 
   @override
   void initState() {
@@ -25,18 +26,57 @@ class _PayuPaymentViewState extends State<PayuPaymentView>
 
   @override
   Widget build(BuildContext context) {
-    print(hostedIntegreation);
-    return Center(
-      child: ElevatedButton(
-        child: const Text("Start Payment"),
-        onPressed: () async {
-          await _checkoutPro.openCheckoutScreen(
-            payUPaymentParams: PayUParams.createPayUPaymentParams(),
-            payUCheckoutProConfig: PayUParams.createPayUConfigParams(),
-          );
-        },
+    //print(hostedIntegreation);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Payment"),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          child: const Text("Start Payment"),
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) {
+                return FutureBuilder(
+                    future: _checkoutPro.openCheckoutScreen(
+                      payUPaymentParams: PayUParams.createPayUPaymentParams(),
+                      payUCheckoutProConfig:
+                          PayUParams.createPayUConfigParams(),
+                    ),
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        print(snapshot.data);
+                        return snapshot.data;
+                      }
+                      return Center(child: CircularProgressIndicator());
+                    });
+              }),
+            );
+          },
+        ),
       ),
     );
+
+    // FutureBuilder(
+    //       future: _checkoutPro.openCheckoutScreen(
+    //         payUPaymentParams: PayUParams.createPayUPaymentParams(),
+    //         payUCheckoutProConfig: PayUParams.createPayUConfigParams(),
+    //       ),
+    //       builder: (BuildContext context, AsyncSnapshot snapshot) {
+    //         switch (snapshot.connectionState) {
+    //           case ConnectionState.none:
+    //           case ConnectionState.waiting:
+    //             return Center(child: new CircularProgressIndicator());
+    //           default:
+    //             if (snapshot.hasError) {
+    //               return Center(child: Text('Some warning'));
+    //             } else {
+    //               return snapshot.data;
+    //             }
+    //         }
+    //       });
+
     // MaterialApp(
     //   home: Scaffold(
     //     appBar: AppBar(
@@ -63,14 +103,7 @@ class _PayuPaymentViewState extends State<PayuPaymentView>
     // Backend will generate the hash which you need to pass to SDK
     // hashResponse: is the response which you get from your server
 
-    var hashName = response[PayUHashConstantsKeys.hashName];
-    var hashStringWithoutSalt = response[PayUHashConstantsKeys.hashString];
-    var hashType = response[PayUHashConstantsKeys.hashType];
-    var postSalt = response[PayUHashConstantsKeys.postSalt];
-    // var hash = <Get Hash Backend with < hashString, merchantSalt , postSalt >
-    var hash = generateHash(hashName + postSalt);
-    // Call hashGenerated with HashResponse< hashName , Hash>
-    Map hashResponse = {};
+    var hashResponse = HashService.generateHash(response);
     _checkoutPro.hashGenerated(hash: hashResponse);
   }
 
@@ -90,18 +123,16 @@ class _PayuPaymentViewState extends State<PayuPaymentView>
   }
 
   @override
-  onError(Map? response) {
-//Handle on error response
-  }
+  onError(Map? response) {}
 }
 
 class PayUTestCredentials {
   //Find the test credentials from dev guide: https://devguide.payu.in/flutter-sdk-integration/getting-started-flutter-sdk/mobile-sdk-test-environment/
-  static const merchantKey = "3TnMpV"; // Add you Merchant Key
-  static const iosSurl = "<ADD YOUR iOS SURL>";
-  static const iosFurl = "<ADD YOUR iOS FURL>";
-  static const androidSurl = "<ADD YOUR ANDROID SURL>";
-  static const androidFurl = "<ADD YOUR ANDROID FURL>";
+  static const merchantKey = "l1K8X1P1"; // Add you Merchant Key
+  static const iosSurl = "https://www.google.com/";
+  static const iosFurl = "https://www.google.com/";
+  static const androidSurl = "https://www.google.com/";
+  static const androidFurl = "https://www.google.com/";
 
   static const merchantAccessKey = ""; //Add Merchant Access Key - Optional
   static const sodexoSourceId = ""; //Add sodexo Source Id - Optional
@@ -114,8 +145,8 @@ class PayUParams {
       PayUSIParamsKeys.isFreeTrial: true,
       PayUSIParamsKeys.billingAmount: '1', //Required
       PayUSIParamsKeys.billingInterval: '1', //Required
-      PayUSIParamsKeys.paymentStartDate: '2023-04-20', //Required
-      PayUSIParamsKeys.paymentEndDate: '2023-04-30', //Required
+      PayUSIParamsKeys.paymentStartDate: '2023-03-03', //Required
+      PayUSIParamsKeys.paymentEndDate: '2023-03-04', //Required
       PayUSIParamsKeys.billingCycle: //Required
           'daily', //Can be any of 'daily','weekly','yearly','adhoc','once','monthly'
       PayUSIParamsKeys.remarks: 'Test SI transaction',
@@ -157,7 +188,7 @@ class PayUParams {
       PayUPaymentParamKey.ios_furl: PayUTestCredentials.iosFurl,
       PayUPaymentParamKey.android_surl: PayUTestCredentials.androidSurl,
       PayUPaymentParamKey.android_furl: PayUTestCredentials.androidFurl,
-      PayUPaymentParamKey.environment: "0", //0 => Production 1 => Test
+      PayUPaymentParamKey.environment: "1", //0 => Production 1 => Test
       PayUPaymentParamKey.userCredential:
           null, //Pass user credential to fetch saved cards => A:B - Optional
       PayUPaymentParamKey.transactionId: DateTime.fromMicrosecondsSinceEpoch
