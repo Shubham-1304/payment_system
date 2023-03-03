@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:payment_system/views/api.dart';
+import 'package:payment_system/views/payu_payment_view.dart';
 import 'package:payment_system/views/payu_payment_view/payu_hashing.dart';
 
 void main() {
@@ -25,7 +27,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: PayuPaymentView(),
     );
   }
 }
@@ -61,10 +63,17 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });
   }
+
   @override
   void initState() {
     super.initState();
-    print(getHashes(txnId: "12345", amount: "1000", productInfo: "Shopping", firstName: "Vinay", email: "vinay@test.com", ));
+    print(getHashes(
+      txnId: "12345",
+      amount: "1000",
+      productInfo: "Shopping",
+      firstName: "Vinay",
+      email: "vinay@test.com",
+    ));
   }
 
   @override
@@ -85,7 +94,6 @@ class _MyHomePageState extends State<MyHomePage> {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Column(
-
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
